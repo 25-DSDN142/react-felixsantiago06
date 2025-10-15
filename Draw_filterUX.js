@@ -1,124 +1,168 @@
-// ----=  HANDS  =----
-let halo;
-let rightHorn;
-let leftHorn;
+// 𓍙 🏙️ HANDS & FACES: City Filter UX  .ೃ࿔ ✈︎ *:･
 
-let angel = true;
+// GLOBAL VARIABLES
+// Filter State
+let filterImages = {};
+let instagramLogo; // The required static image
+
+let filterModes = [
+  "None", "New York", "Rio De Janeiro", "Oslo", "Tokyo", 
+  "Paris", "Melbourne", "Jakarta", "Jaipur", "Buenos Aires", 
+  "Abu Dhabi"
+]; 
+let currentFilterIndex = 0;
+let showTitleTimer = 0; 
+const TITLE_DISPLAY_TIME = 60; // 1 second display time
+
+// Swipe Detection Variables
+let previousHandX = -1;
+const SWIPE_THRESHOLD = 50; // Horizontal distance to register a swipe
+const SWIPE_COOLDOWN = 30; // Frames to wait after a swipe
+let swipeCooldownTimer = 0; 
+
+// Static Logo Dimensions
+const LOGO_WIDTH = 50;
+const LOGO_HEIGHT = 50;
+const LOGO_SIZE = 200; 
+const LOGO_PADDING = 20;
 
 function prepareInteraction() {
-  halo = loadImage('/images/Gemini_halo.png');
-  rightHorn = loadImage('/images/Gemini_horn1.png');
-  leftHorn = loadImage('/images/Gemini_horn2.png');
+  instagramLogo = loadImage('/images/instagram_logo.png'); 
+  
+  filterImages.title_New_YorkText = loadImage('/images/NewYorkText.png'); 
+  filterImages.title_Rio_De_JaneiroText = loadImage('/images/RioDeJaneiroText.png');
+  filterImages.title_OsloText = loadImage('/images/OsloText.png');
+  filterImages.title_TokyoText = loadImage('/images/TokyoText.png');
+  filterImages.title_ParisText = loadImage('/images/ParisText.png');
+  filterImages.title_MelbourneText = loadImage('/images/MelbourneText.png');
+  filterImages.title_JakartaText = loadImage('/images/JakartaText.png');
+  filterImages.title_JaipurText = loadImage('/images/JaipurText.png');
+  filterImages.title_Buenos_AiresText = loadImage('/images/BuenosAiresText.png');
+  filterImages.title_Abu_DhabiText = loadImage('/images/AbuDhabiText.png');
 }
 
+
+// 3. MAIN DRAW LOOP LOGIC
 function drawInteraction(faces, hands) {
+    
+    // Timer updates
+    if (swipeCooldownTimer > 0) swipeCooldownTimer--;
+    if (showTitleTimer > 0) showTitleTimer--;
 
-  // hands part
-  // USING THE GESTURE DETECTORS (check their values in the debug menu)
-  // detectHandGesture(hand) returns "Pinch", "Peace", "Thumbs Up", "Pointing", "Open Palm", or "Fist"
+    let currentMode = filterModes[currentFilterIndex];
 
-  // for loop to capture if there is more than one hand on the screen. This applies the same process to all hands.
-  for (let i = 0; i < hands.length; i++) {
-    let hand = hands[i];
-    if (showKeypoints) {
-      drawPoints(hand)
-      drawConnections(hand)
+    applyCityFilter(currentMode); 
+
+    
+    for (let i = 0; i < hands.length; i++) {
+        let hand = hands[i];
+        let currentHandX = hand.wrist.x; 
+
+        if (previousHandX !== -1 && swipeCooldownTimer === 0) {
+            let deltaX = currentHandX - previousHandX;
+            
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                swipeCooldownTimer = SWIPE_COOLDOWN;
+                showTitleTimer = TITLE_DISPLAY_TIME;
+                
+                currentFilterIndex = (currentFilterIndex + 1) % filterModes.length; 
+            }
+        }
+        previousHandX = currentHandX;
     }
-    // console.log(hand);
-    /*
-    Start drawing on the hands here
-    */
 
-    let whatGesture = detectHandGesture(hand)
-    if (whatGesture == "Thumbs Up") {
-      angel = true;
+
+    // ---- C: FACE OVERLAYS (Optional - technical graphic elements) ----
+    for (let i = 0; i < faces.length; i++) {
+        let face = faces[i];
+        // Example: If in 'Tokyo' mode, draw a small technical square on the nose tip
+        if (currentMode === "Tokyo") {
+            let noseTip = face.keypoints[4];
+            noStroke();
+            fill(255, 0, 255); // Neon color
+            rect(noseTip.x - 5, noseTip.y - 5, 10, 10);
+        }
     }
-    if (whatGesture == "Open Palm") {
-      angel = false;
-    }
-
-    /*
-    Stop drawing on the hands here
-    */
-  }
-
-  //------------------------------------------------------------
-  //facePart
-  // for loop to capture if there is more than one face on the screen. This applies the same process to all faces. 
-  for (let i = 0; i < faces.length; i++) {
-    let face = faces[i]; // face holds all the keypoints of the face
-    if (showKeypoints) {
-      drawPoints(face)
-    }
-    // console.log(face);
-    /*
-    Once this program has a face, it knows some things about it.
-    This includes how to draw a box around the face, and an oval. 
-    It also knows where the key points of the following parts are:
-     face.leftEye
-     face.leftEyebrow
-     face.lips
-     face.rightEye
-     face.rightEyebrow
-    */
-    /*
-    Start drawing on the face here
-    */
-
-    let faceWidth = face.faceOval.width;
-    let faceheight = face.faceOval.height;
-    let faceCenterX = face.faceOval.centerX;
-    let faceCenterY = face.faceOval.centerY;
 
 
-    let hornWidth = faceWidth / 3;
-    let hornHeight = faceheight;
-
-    let hornXOffset = faceWidth * 0.6;
-    let hornYOffset = faceheight * 1.5;
-
-    if (angel) {
-      image(halo, face.keypoints[103].x, face.keypoints[103].y - 200)
-    } else {
-      image(rightHorn, faceCenterX - hornXOffset, faceCenterY - hornYOffset, hornWidth, hornHeight) // imageName, x, y, imageWidth, imageHight
-      image(leftHorn, faceCenterX + hornXOffset - leftHorn.width, faceCenterY - hornYOffset, hornWidth, hornHeight) // imageName, x, y, imageWidth, imageHight
-
-    }
-    /*
-    Stop drawing on the face here
-    */
-
-  }
-  //------------------------------------------------------
-  // You can make addtional elements here, but keep the face drawing inside the for loop. 
+    // ---- D: STATIC LOGO & FADING TITLE (FIXED: Tint is cleared only for these elements) ----
+    
+    // 1. Draw Static Instagram Logo (Required Image)
+    push();
+    noTint(); // IMPORTANT: This must be inside the push/pop block to only affect the logo and then be cleared.
+    let logoX = width - LOGO_SIZE - LOGO_PADDING; 
+    let logoY = LOGO_PADDING;
+    image(instagramLogo, logoX, logoY, LOGO_SIZE, LOGO_SIZE); 
+    pop();
+    
+    // 2. Draw Fading Title
+    drawFadingTitle(currentMode);
+    
 }
 
 
-function drawConnections(hand) {
-  // Draw the skeletal connections
-  push()
-  for (let j = 0; j < connections.length; j++) {
-    let pointAIndex = connections[j][0];
-    let pointBIndex = connections[j][1];
-    let pointA = hand.keypoints[pointAIndex];
-    let pointB = hand.keypoints[pointBIndex];
-    stroke(255, 0, 0);
-    strokeWeight(2);
-    line(pointA.x, pointA.y, pointB.x, pointB.y);
-  }
-  pop()
+// 4. HELPER FUNCTION: City Filter Recipes (Using only tint() for stability)
+function applyCityFilter(filterName) {
+    // Clear any previous color tint (essential step before applying the new one)
+    noTint(); 
+
+    switch (filterName) {
+        case "New York":
+            tint(170, 180, 220); // New York Movie Look
+            break;
+        case "Rio De Janeiro":
+            tint(255, 200, 150); // Strong, warm sunset glow
+            break;
+        case "Oslo":
+            tint(200, 255, 255); // Pale, icy blue/cyan
+            break;
+        case "Tokyo":
+            tint(120, 120, 120); // Black and white / high contrast
+            break;
+        case "Paris":
+            tint(255, 240, 220); // Soft, romantic yellow-pink
+            break;
+        case "Melbourne":
+            tint(220, 220, 255); // Subtle, foggy blue
+            break;
+        case "Jakarta":
+            tint(255, 200, 100); // Strong orange/sepia
+            break;
+        case "Jaipur":
+            tint(255, 180, 120); // Rich red/orange warmth
+            break;
+        case "Buenos Aires":
+            tint(240, 255, 200); // Faded, cool green/yellow
+            break;
+        case "Abu Dhabi":
+            tint(255, 255, 150); // Very bright, pale yellow/gold
+            break;
+        case "None":
+            // Filter is cleared by the initial noTint()
+            break;
+    }
 }
 
-// This function draw's a dot on all the keypoints. It can be passed a whole face, or part of one. 
-function drawPoints(feature) {
 
-  push()
-  for (let i = 0; i < feature.keypoints.length; i++) {
-    let element = feature.keypoints[i];
-    noStroke();
-    fill(0, 255, 0);
-    circle(element.x, element.y, 5);
-  }
-  pop()
+// 5. HELPER FUNCTION: Draw Fading Title
+function drawFadingTitle(currentFilterName) { 
+    if (showTitleTimer > 0 && currentFilterName !== "None") { 
+        let alpha = map(showTitleTimer, 0, TITLE_DISPLAY_TIME, 0, 255); 
+        
+        // 1. Construct the key: e.g., "title_New_YorkText"
+        let baseKey = currentFilterName.replace(/ /g, '_'); 
+        let titleKey = "title_" + baseKey + "Text";
+        
+        // 2. Retrieve the image object
+        let titleImage = filterImages[titleKey];
 
+        if (titleImage) {
+            push();
+            tint(255, alpha); // Apply alpha for the fade effect
+            
+            // Draw the full-canvas overlay graphic
+            image(titleImage, 0, 0, width, height); 
+            pop();
+        }
+    }
 }
