@@ -1,5 +1,6 @@
 // 𓍙 🏙️ HANDS & FACES: City Filter UX  .ೃ࿔ ✈︎ *:･
 // HANDS & FACES: City Filter UX  .ೃ࿔ ✈︎ *:･
+// City Filter UX  .ೃ࿔ ✈︎ *:･
 
 // GLOBAL VARIABLES
 // Filter State
@@ -17,8 +18,8 @@ const TITLE_DISPLAY_TIME = 60; // 1 second display time
 
 // Swipe Detection Variables
 let previousHandX = -1;
-const SWIPE_THRESHOLD = 250; // Horizontal distance to register a swipe
-const SWIPE_COOLDOWN = 20; // Lowered to 20 frames due to the program running slower with the filters
+const SWIPE_THRESHOLD = 150; // Horizontal distance to register a swipe
+const SWIPE_COOLDOWN = 30; // Matches the frame rate with the program when filters are applied
 let swipeCooldownTimer = 0; 
 
 // Static Logo Dimensions
@@ -48,7 +49,6 @@ function prepareInteraction() {
 
 // 3. MAIN DRAW LOOP LOGIC
 // MAIN DRAW LOOP LOGIC
-function drawInteraction(hands) {
 function drawInteraction(faces, hands) {
     
     // Timer updates
