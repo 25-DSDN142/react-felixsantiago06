@@ -49,6 +49,7 @@ function prepareInteraction() {
 // 3. MAIN DRAW LOOP LOGIC
 // MAIN DRAW LOOP LOGIC
 function drawInteraction(hands) {
+function drawInteraction(faces, hands) {
     
     // Timer updates
     if (swipeCooldownTimer > 0) swipeCooldownTimer--;
