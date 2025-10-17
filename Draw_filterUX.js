@@ -18,12 +18,14 @@ const TITLE_DISPLAY_TIME = 60; // 1 second display time
 let previousHandX = -1;
 const SWIPE_THRESHOLD = 50; // Horizontal distance to register a swipe
 const SWIPE_COOLDOWN = 30; // Frames to wait after a swipe
+const SWIPE_COOLDOWN = 12; // Lowered to 12 frames due to the program running slower with the filters
 let swipeCooldownTimer = 0; 
 
 // Static Logo Dimensions
 const LOGO_WIDTH = 50;
 const LOGO_HEIGHT = 50;
 const LOGO_SIZE = 200; 
+const LOGO_SIZE = 150; 
 const LOGO_PADDING = 20;
 
 function prepareInteraction() {
@@ -43,6 +45,7 @@ function prepareInteraction() {
 
 
 // 3. MAIN DRAW LOOP LOGIC
+// MAIN DRAW LOOP LOGIC
 function drawInteraction(faces, hands) {
     
     // Timer updates
@@ -62,6 +65,7 @@ function drawInteraction(faces, hands) {
             let deltaX = currentHandX - previousHandX;
             
             if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                // Swipe detected!
                 swipeCooldownTimer = SWIPE_COOLDOWN;
                 showTitleTimer = TITLE_DISPLAY_TIME;
                 
