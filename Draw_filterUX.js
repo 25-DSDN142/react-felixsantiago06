@@ -1,4 +1,5 @@
 // 𓍙 🏙️ HANDS & FACES: City Filter UX  .ೃ࿔ ✈︎ *:･
+// HANDS & FACES: City Filter UX  .ೃ࿔ ✈︎ *:･
 
 // GLOBAL VARIABLES
 // Filter State
@@ -16,21 +17,22 @@ const TITLE_DISPLAY_TIME = 60; // 1 second display time
 
 // Swipe Detection Variables
 let previousHandX = -1;
-const SWIPE_THRESHOLD = 50; // Horizontal distance to register a swipe
-const SWIPE_COOLDOWN = 30; // Frames to wait after a swipe
-const SWIPE_COOLDOWN = 12; // Lowered to 12 frames due to the program running slower with the filters
+const SWIPE_THRESHOLD = 250; // Horizontal distance to register a swipe
+const SWIPE_COOLDOWN = 20; // Lowered to 20 frames due to the program running slower with the filters
 let swipeCooldownTimer = 0; 
 
 // Static Logo Dimensions
 const LOGO_WIDTH = 50;
 const LOGO_HEIGHT = 50;
-const LOGO_SIZE = 200; 
 const LOGO_SIZE = 150; 
 const LOGO_PADDING = 20;
 
+// Images LOADING
 function prepareInteraction() {
+  // REQUIRED STATIC IMAGE: Instagram Logo
   instagramLogo = loadImage('/images/instagram_logo.png'); 
   
+  // loads the images into the filterImages object
   filterImages.title_New_YorkText = loadImage('/images/NewYorkText.png'); 
   filterImages.title_Rio_De_JaneiroText = loadImage('/images/RioDeJaneiroText.png');
   filterImages.title_OsloText = loadImage('/images/OsloText.png');
@@ -46,7 +48,7 @@ function prepareInteraction() {
 
 // 3. MAIN DRAW LOOP LOGIC
 // MAIN DRAW LOOP LOGIC
-function drawInteraction(faces, hands) {
+function drawInteraction(hands) {
     
     // Timer updates
     if (swipeCooldownTimer > 0) swipeCooldownTimer--;
@@ -75,21 +77,6 @@ function drawInteraction(faces, hands) {
         previousHandX = currentHandX;
     }
 
-
-    // ---- C: FACE OVERLAYS (Optional - technical graphic elements) ----
-    for (let i = 0; i < faces.length; i++) {
-        let face = faces[i];
-        // Example: If in 'Tokyo' mode, draw a small technical square on the nose tip
-        if (currentMode === "Tokyo") {
-            let noseTip = face.keypoints[4];
-            noStroke();
-            fill(255, 0, 255); // Neon color
-            rect(noseTip.x - 5, noseTip.y - 5, 10, 10);
-        }
-    }
-
-
-    // ---- D: STATIC LOGO & FADING TITLE (FIXED: Tint is cleared only for these elements) ----
     
     // 1. Draw Static Instagram Logo (Required Image)
     push();
@@ -149,6 +136,7 @@ function applyCityFilter(filterName) {
 
 
 // 5. HELPER FUNCTION: Draw Fading Title
+// Fading Title overlay
 function drawFadingTitle(currentFilterName) { 
     if (showTitleTimer > 0 && currentFilterName !== "None") { 
         let alpha = map(showTitleTimer, 0, TITLE_DISPLAY_TIME, 0, 255); 
@@ -170,3 +158,4 @@ function drawFadingTitle(currentFilterName) {
         }
     }
 }
+
